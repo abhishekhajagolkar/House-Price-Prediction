@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>House Price Predictor</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <style>
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+    }
+    body {
+      min-height: 100vh;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #191c23;
+    }
+    #bg-images {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 0;
+    }
+    #bg-images img {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      opacity: 0;
+      transition: opacity 1.5s ease-in-out;
+    }
+    #bg-images img.active {
+      opacity: 0.7;
+    }
+    .form-box {
+      position: relative;
+      z-index: 10;
+      background: rgba(255,255,255,0.09);
+      padding: 44px 36px 40px 36px;
+      border-radius: 28px;
+      box-shadow: 0 0 52px 0px #00bea355, 0 2px 16px #00d9ff1a;
+      backdrop-filter: blur(11px);
+      max-width: 447px;
+      margin: 0 auto;
+      animation: popIn 0.85s cubic-bezier(.53,1.62,.57,.82);
+      overflow: hidden;
+    }
+    .form-box::after {
+      content:'';
+      position: absolute;
+      left:-70px;top:-30px; width:230px; height:80px; z-index:3;
+      background: linear-gradient(135deg, #fff4 15%, #fff1 80%, transparent 100%);
+      filter: blur(6.5px);
+      pointer-events:none;
+      transform: rotate(-12deg);
+      animation: shine 3.4s infinite linear alternate;
+    }
+    @keyframes shine {
+      from { left:-90px; top: -30px;}
+      to { left:90%; top: 30px; }
+    }
+    @keyframes popIn {
+      0%{transform:scale(0.84) translateY(80px);opacity:0;}
+      40%{transform: scale(1.09) translateY(-14px);}
+      70%{transform: scale(0.97) translateY(8px);}
+      100%{transform: scale(1) translateY(0);opacity:1;}
+    }
+    h2 {
+      text-align: center; margin-bottom: 32px;
+      color: #00ffa3;
+      filter: drop-shadow(0 0 10px #00ffa378);
+      font-weight: 800;
+      letter-spacing:1.8px;
+    }
+    .floating-label-group {
+      position:relative; margin-bottom:33px;
+    }
+    .floating-label-group label {
+      position:absolute; left:44px; top:15px;
+      transition:.22s cubic-bezier(.75,.18,.21,1);
+      color:#7fffe3; pointer-events:none;
+      background:transparent; font-size:1.04em; padding:2px 8px; z-index:2; font-weight: 500;
+    }
+    .floating-label-group input:focus + label,
+    .floating-label-group input:not(:placeholder-shown) + label {
+      top:-17px; left:18px; font-size:.88em;
+      background:rgba(20,30,48,.96);
+      color:#00ffa3;
+      border-radius:5px;
+      font-weight:600;
+      box-shadow:0 1.7px 10px 0 #00ffa328;
+      padding:0 9px;
+    }
+    .floating-label-group .input-icon {
+      position:absolute; left:15px; top:13px;
+      width: 22px;height:22px; z-index:2;
+      filter: drop-shadow(0 0 5px #00d9ff66);
+      opacity:.89;
+    }
+    .floating-label-group input.form-control {
+      padding: 17px 14px 13px 45px;
+      background: #e0f7fa62;
+      border:2.7px solid #2be0e6;
+      border-radius:13px;
+      font-weight:500;
+      color:#173e54; font-size:1.11em; outline:none;
+      transition: border .25s, box-shadow .19s, background .33s;
+      box-shadow: 0 2px 16px 0px #00d9ff16;
+    }
+    #Size:focus, #Size:hover { border-color: #01ebff; background: #e0fefffa; box-shadow:0 2px 18px #00838f28;}
+    #Size { border-color: #01ebff; }
+    #Bedrooms:focus, #Bedrooms:hover { border-color: #ff53c6; background: #fff2fa; box-shadow:0 3px 15px #ff53c636;}
+    #Bedrooms { border-color: #ff53c6; }
+    #Age:focus, #Age:hover{border-color: #ffb300; background: #fff8e1e6; box-shadow:0 2px 15px #e48d0035;}
+    #Age { border-color: #ffb300;}
+    .floating-label-group input:active:hover, .floating-label-group input:focus {
+      animation: pulseInput .39s alternate;
+    }
+    @keyframes pulseInput {
+      0%{box-shadow:0 0 0 0px #00e5ff11,0 2px 15px #00e5ff19;}
+      60%{box-shadow:0 0 0 8px #00d9ff2a,0 2px 19px #00e5ff34;}
+      100%{box-shadow:0 0 0 0px #00e5ff1a,0 2px 13px #00e5ff16;}
+    }
+    button {
+      margin-top:8px; width:100%; padding:18px;
+      background: linear-gradient(92deg, #00d9ff 12%, #00ffa3 67%, #ff53c6 96%);
+      border:none; border-radius:14px;
+      font-weight: bold; font-size:1.15em; color:black;
+      cursor:pointer; letter-spacing:1.2px; box-shadow:0 2px 17px #00d9ff17;
+      background-size: 200% 100%;
+      transition: background-position .38s, box-shadow .23s, transform .22s;
+      position:relative; overflow:hidden;
+    }
+    button:before {
+      content:'';
+      position:absolute;left:0;top:0;width:100%;height:100%;
+      background: linear-gradient(120deg, #fff5 0%, #fff0 80%);
+      opacity: .14; pointer-events: none;
+    }
+    button:hover, button:focus-visible {
+      background-position: 92% 0;
+      box-shadow: 0 3px 26px #00ffa388;
+      filter: brightness(1.07);
+      transform:scale(1.032);
+    }
+    button:active {
+      filter:brightness(.97); transform:scale(.98);
+    }
+  </style>
+</head>
+<body>
+  <!-- Home images slideshow background -->
+  <div id="bg-images">
+    <img src="https://images.unsplash.com/photo-1564013799919-ab600027ffc6?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80" alt="House 1" class="active">
+    <img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80" alt="House 2">
+    <img src="https://images.unsplash.com/photo-1605276374104-dee2a0ed3cd6?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80" alt="House 3">
+    <img src="https://images.unsplash.com/photo-1605146769289-440113cc3d00?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80" alt="House 4">
+    <img src="https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80" alt="House 5">
+  </div>
+
+  <div class="form-box">
+    <h2>🏠 House Price Prediction</h2>
+    <form method="POST">
+      <div class="floating-label-group">
+        <svg class="input-icon" viewBox="0 0 24 24">
+          <circle cx="12" cy="12" r="9.5" fill="#01ebff" opacity=".25"/>
+          <path fill="#01ebff" d="M5 19v-1c0-2.21 3.582-4 8-4s8 1.79 8 4v1" opacity=".8"/>
+          <circle cx="12" cy="8" r="4" fill="#00e5ff"/>
+        </svg>
+        <input type="number" class="form-control" name="Size_sqft" id="Size" step="any" placeholder=" " autocomplete="off" required />
+        <label for="Size" style="color:#00e5ff;">Size (in sqft)</label>
+      </div>
+      <div class="floating-label-group">
+        <svg class="input-icon" viewBox="0 0 24 24">
+          <rect x="4" y="12" width="16" height="7" rx="2" fill="#ff53c6" opacity=".16" />
+          <rect x="8" y="8" width="8" height="7" rx="2" fill="#ff53c6" opacity=".34" />
+        </svg>
+        <input type="number" class="form-control" name="Bedrooms" id="Bedrooms" placeholder=" " autocomplete="off" required />
+        <label for="Bedrooms" style="color:#ff5eae;">Bedrooms</label>
+      </div>
+      <div class="floating-label-group">
+        <svg class="input-icon" viewBox="0 0 24 24">
+          <rect x="5" y="6" width="14" height="12" rx="3" fill="#ffb300" opacity=".21" />
+          <rect x="7.5" y="10" width="9" height="6" rx="1" fill="#ffb300" opacity=".32" />
+        </svg>
+        <input type="number" class="form-control" name="Age_years" id="Age" placeholder=" " autocomplete="off" required />
+        <label for="Age" style="color:#ffa300;">Age of House (years)</label>
+      </div>
+      <button type="submit">Predict Price</button>
+    </form>
+  </div>
+
+  <script>
+    // Home images slideshow
+    const bgImages = document.getElementById('bg-images');
+    const images = bgImages.querySelectorAll('img');
+    let currentIndex = 0;
+
+    function changeBackground() {
+      // Remove active class from current image
+      images[currentIndex].classList.remove('active');
+
+      // Move to next image
+      currentIndex = (currentIndex + 1) % images.length;
+
+      // Add active class to new image
+      images[currentIndex].classList.add('active');
+
+      // Schedule next change
+      setTimeout(changeBackground, 5000); // Change every 5 seconds
+    }
+
+    // Start the slideshow
+    setTimeout(changeBackground, 5000);
+  </script>
+</body>
+</html>
