@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Prediction Result</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <style>
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      color: white;
+      background: #0a0e17;
+      position: relative;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    /* House image slideshow background */
+    .bg-slideshow {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+    }
+    .bg-slideshow img {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: opacity 1.5s ease-in-out;
+      opacity: 0;
+    }
+    .bg-slideshow img.active {
+      opacity: 0.7;
+    }
+
+    /* Dark overlay */
+    .bg-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, rgba(10,14,23,0.7) 0%, rgba(5,9,18,0.8) 100%);
+      z-index: 1;
+    }
+
+    .result-box {
+      position: relative;
+      z-index: 10;
+      background: rgba(15, 20, 30, 0.85);
+      padding: 40px;
+      border-radius: 16px;
+      box-shadow: 0 0 20px rgba(0, 255, 255, 0.2),
+                  0 0 0 1px rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(8px);
+      text-align: center;
+      max-width: 500px;
+      width: 100%;
+      margin: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      animation: popIn 0.85s cubic-bezier(.53,1.62,.57,.82);
+    }
+
+    h2 {
+      margin-bottom: 20px;
+      color: #00ffa3;
+      filter: drop-shadow(0 0 10px rgba(0, 255, 163, 0.47));
+      font-weight: 800;
+      letter-spacing: 1.8px;
+      font-size: 1.8rem;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    h2::before, h2::after {
+      content: "";
+      display: block;
+      width: 30px;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, #00ffa3);
+      margin: 0 15px;
+    }
+    h2::after {
+      background: linear-gradient(90deg, #00ffa3, transparent);
+    }
+
+    .price {
+      font-size: 2.5rem;
+      font-weight: bold;
+      color: #00d9ff;
+      margin: 20px 0;
+      text-shadow: 0 0 10px rgba(0, 217, 255, 0.3);
+    }
+
+    .btn-back {
+      margin-top: 30px;
+      padding: 15px 25px;
+      border: none;
+      border-radius: 14px;
+      background: linear-gradient(92deg, #00d9ff 12%, #00ffa3 67%, #ff53c6 96%);
+      color: black;
+      font-weight: bold;
+      font-size: 1.1em;
+      transition: all 0.3s ease;
+      text-decoration: none;
+      display: inline-block;
+      box-shadow: 0 2px 17px rgba(0, 217, 255, 0.2);
+      background-size: 200% 100%;
+      position: relative;
+      overflow: hidden;
+    }
+    .btn-back:before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(120deg, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0) 80%);
+      opacity: .14;
+      pointer-events: none;
+    }
+    .btn-back:hover {
+      background-position: 92% 0;
+      box-shadow: 0 3px 26px rgba(0, 255, 163, 0.53);
+      filter: brightness(1.07);
+      transform: scale(1.05);
+    }
+    .btn-back:active {
+      filter: brightness(.97);
+      transform: scale(.98);
+    }
+
+    /* Animations */
+    @keyframes popIn {
+      0% { transform: scale(0.84) translateY(80px); opacity: 0; }
+      40% { transform: scale(1.09) translateY(-14px); }
+      70% { transform: scale(0.97) translateY(8px); }
+      100% { transform: scale(1) translateY(0); opacity: 1; }
+    }
+
+    /* House icons decoration */
+    .house-icon {
+      position: absolute;
+      opacity: 0.1;
+      z-index: 2;
+    }
+    .house-icon:nth-child(1) {
+      top: 10%;
+      left: 5%;
+      font-size: 3rem;
+      transform: rotate(15deg);
+    }
+    .house-icon:nth-child(2) {
+      bottom: 15%;
+      right: 8%;
+      font-size: 4rem;
+      transform: rotate(-10deg);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- House image slideshow background -->
+  <div class="bg-slideshow">
+    <img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80" class="active" alt="Modern luxury house">
+    <img src="https://images.unsplash.com/photo-1605276374104-dee2a0ed3cd6?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80" alt="Beautiful suburban home">
+    <img src="https://images.unsplash.com/photo-1605146769289-440113cc3d00?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80" alt="Contemporary architecture">
+    <img src="https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80" alt="Elegant family home">
+    <img src="https://images.unsplash.com/photo-1600607688969-a5bfcd646154?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80" alt="Luxury villa">
+  </div>
+
+  <!-- Dark overlay -->
+  <div class="bg-overlay"></div>
+
+  <!-- Decorative house icons -->
+  <div class="house-icon">🏡</div>
+  <div class="house-icon">🏠</div>
+
+  <div class="result-box">
+    <h2>🏡 Predicted Home Price</h2>
+    <div class="price">
+      ₹ {{ Predicted_sales }}
+    </div>
+    <a href="/" class="btn-back">🔙 Predict Again</a>
+  </div>
+
+  <script>
+    // House image slideshow
+    const bgImages = document.querySelectorAll('.bg-slideshow img');
+    let currentImage = 0;
+
+    function changeBackground() {
+      bgImages[currentImage].classList.remove('active');
+      currentImage = (currentImage + 1) % bgImages.length;
+      bgImages[currentImage].classList.add('active');
+    }
+
+    // Change image every 4 seconds
+    setInterval(changeBackground, 4000);
+
+    // Add confetti effect when price is displayed
+    document.addEventListener('DOMContentLoaded', function() {
+      const priceElement = document.querySelector('.price');
+      if (priceElement && priceElement.textContent.trim() !== '₹') {
+        // You could add a confetti effect here if desired
+        // For example using a library like canvas-confetti
+      }
+    });
+  </script>
+</body>
+</html>
